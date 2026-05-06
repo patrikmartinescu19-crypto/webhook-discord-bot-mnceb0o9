@@ -14,17 +14,13 @@ import sys
 def build():
     """Build the application into a standalone executable."""
     app_dir = os.path.dirname(os.path.abspath(__file__))
-    assets_dir = os.path.join(app_dir, "assets")
 
     cmd = [
         sys.executable, "-m", "PyInstaller",
         "--onefile",
         "--windowed",
         "--name", "Undetected",
-        f"--icon={os.path.join(assets_dir, 'icon.ico')}",
-        f"--add-data={assets_dir}{os.pathsep}assets",
         "--hidden-import=customtkinter",
-        "--hidden-import=PIL",
         "--hidden-import=requests",
         "--collect-data=customtkinter",
         os.path.join(app_dir, "app.py"),

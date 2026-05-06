@@ -704,9 +704,10 @@ def revert_tweak(tweak: dict) -> tuple[bool, str]:
         results.append(msg)
         if not ok:
             all_ok = False
-    state = load_tweaks_state()
-    state.pop(tweak["id"], None)
-    save_tweaks_state(state)
+    if all_ok:
+        state = load_tweaks_state()
+        state.pop(tweak["id"], None)
+        save_tweaks_state(state)
     return all_ok, " | ".join(results)
 
 

@@ -7,7 +7,6 @@ import os
 import threading
 
 import customtkinter as ctk
-from PIL import Image
 
 from keyauth_api import KeyAuth
 from tweaks import (
@@ -40,7 +39,6 @@ TEXT_PRIMARY = "#EAEAEA"
 TEXT_SECONDARY = "#888899"
 TEXT_MUTED = "#555566"
 
-ASSET_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")
 
 
 class HUDButton(ctk.CTkButton):
@@ -162,16 +160,6 @@ class LoginWindow(ctk.CTkToplevel):
         self.transient(master)
         self.grab_set()
 
-        # Logo
-        try:
-            logo_path = os.path.join(ASSET_DIR, "logo.png")
-            logo_img = Image.open(logo_path).resize((120, 120))
-            self.logo_photo = ctk.CTkImage(light_image=logo_img, dark_image=logo_img, size=(120, 120))
-            logo_label = ctk.CTkLabel(self, image=self.logo_photo, text="")
-            logo_label.pack(pady=(24, 4))
-        except Exception:
-            pass
-
         ctk.CTkLabel(
             self, text="UNDETECTED", font=("Consolas", 28, "bold"), text_color=CYAN
         ).pack(pady=(0, 2))
@@ -254,28 +242,32 @@ class LoginWindow(ctk.CTkToplevel):
 
     def _do_login(self):
         self._set_status("Authenticating...", CYAN)
-        threading.Thread(target=self._login_thread, daemon=True).start()
+        username = self.login_user.get()
+        password = self.login_pass.get()
+        threading.Thread(target=self._login_thread, args=(username, password), daemon=True).start()
 
-    def _login_thread(self):
-        ok = self.keyauth.login(self.login_user.get(), self.login_pass.get())
+    def _login_thread(self, username, password):
+        ok = self.keyauth.login(username, password)
         self.after(0, lambda: self._auth_result(ok))
 
     def _do_register(self):
         self._set_status("Registering...", CYAN)
-        threading.Thread(target=self._register_thread, daemon=True).start()
+        username = self.reg_user.get()
+        password = self.reg_pass.get()
+        key = self.reg_key.get()
+        threading.Thread(target=self._register_thread, args=(username, password, key), daemon=True).start()
 
-    def _register_thread(self):
-        ok = self.keyauth.register(
-            self.reg_user.get(), self.reg_pass.get(), self.reg_key.get()
-        )
+    def _register_thread(self, username, password, key):
+        ok = self.keyauth.register(username, password, key)
         self.after(0, lambda: self._auth_result(ok))
 
     def _do_license(self):
         self._set_status("Validating license...", CYAN)
-        threading.Thread(target=self._license_thread, daemon=True).start()
+        key = self.lic_key.get()
+        threading.Thread(target=self._license_thread, args=(key,), daemon=True).start()
 
-    def _license_thread(self):
-        ok = self.keyauth.license_only(self.lic_key.get())
+    def _license_thread(self, key):
+        ok = self.keyauth.license_only(key)
         self.after(0, lambda: self._auth_result(ok))
 
     def _auth_result(self, success):
@@ -306,14 +298,6 @@ class UndetectedApp(ctk.CTk):
 
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("dark-blue")
-
-        # Try setting icon
-        try:
-            ico_path = os.path.join(ASSET_DIR, "icon.ico")
-            if os.path.exists(ico_path):
-                self.iconbitmap(ico_path)
-        except Exception:
-            pass
 
         # KeyAuth
         self.keyauth = KeyAuth(
