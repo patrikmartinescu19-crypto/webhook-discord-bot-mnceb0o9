@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "undetected-pc-tweaks"
+version = "1.0.0"
+description = "Undetected — A modern HUD-style PC optimization & tweaking tool"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+dependencies = [
+    "customtkinter>=5.2.0",
+    "Pillow>=10.0.0",
+    "requests>=2.31.0",
+]
+
+[project.scripts]
+undetected = "app:main"
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E501"]
